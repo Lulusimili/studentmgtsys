@@ -1,0 +1,41 @@
+
+tr {
+	cursor: pointer;
+}
+
+#module_container {
+	border-radius: 5px;
+	height: 420px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+::-webkit-scrollbar {
+display: all;
+background-color: none;
+}
+
+#scroll-icon {
+	margin-left: auto;
+	margin-right: auto;
+	float: right;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+#module_container::-webkit-scrollbar {
+  width: 0.5em;
+  height: 0.2em;
+}
+ 
+#module_container::-webkit-scrollbar-track {
+  padding-left: 2px;
+}
+
+
+#module_container::-webkit-scrollbar-thumb {
+  background-color: grey;
+  border-radius: 5px;
+}
