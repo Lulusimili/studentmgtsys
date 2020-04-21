@@ -1,3 +1,4 @@
 $('.list-group-item').click(function() {
-	alert($(this).attr("class"));
+    $('.active').not($(this)).removeClass('active');
+	$(this).toggleClass("active");
 });
