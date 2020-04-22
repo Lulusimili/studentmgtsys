@@ -63,7 +63,10 @@ $(document).ready(function() {
 					contentType: 'application/json; charset=utf-8',
 					data: JSON.stringify({'id': moduleID}),
 					success: function (data) {
-						console.log('edit posted')
+						$('#moduleID').val(moduleID);
+						$('#moduleName').val(data[0]);
+						$('#moduleLecturer').val(data[1]);
+						$('#moduleCapacity').val(data[2]);
 					}
 				});   		
 	    	}
