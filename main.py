@@ -1,10 +1,14 @@
-from flask import Flask, escape, request, render_template, jsonify
+from flask import Flask, escape, request, render_template, jsonify, redirect
 from flask.views import MethodView
 import json
 import csv
 
+domainURL = 'http://127.0.0.1:5000/'
+
 studentCatalog = dict()
 moduleCatalog = dict()
+
+editModuleKey = 'HELLO'
 
 with open("moduleCatalog.json", "r") as file:
 	moduleCatalog = json.loads(file.read())
@@ -60,7 +64,7 @@ class Module(MethodView):
 
 		print('PRINT', moduleID, name, lecturer, capacity)
 
-		moduleCatalog[moduleID] = [name, lecturer, capacity]
+		moduleCatalog[str(moduleID)] = [name, lecturer, capacity]
 
 		with open("moduleCatalog.json", "r+") as file:
 			data = json.load(file)
@@ -68,18 +72,46 @@ class Module(MethodView):
 			file.seek(0)
 			json.dump(data, file)
 
+		return redirect(domainURL, code=302)
+
+	def delete_module(self, key):
+		moduleCatalog.pop(str(key), None)	
+
+		with open('moduleCatalog.json', 'w') as updatedModuleJSON:
+			json.dump(moduleCatalog, updatedModuleJSON)
+
+	def edit_module(self, key):
+		global editModuleKey 
+		editModuleKey = key
+
+		return editModuleKey
+
 	def get(self):
-		return "Get"
+
+		return "GET"
 
 	def post(self):
-		addModuleID = request.form['moduleID']
-		addModuleName = request.form['moduleName']
-		addModuleLecturer = request.form['moduleLecturer']
-		addModuleCapacity = request.form['moduleCapacity']
 
-		self.add_module(addModuleID, addModuleName, addModuleLecturer, addModuleCapacity)
+		if (request.url == (domainURL +'module-edit')):
+			data = request.get_json()
+			return self.edit_module(data['id'])
+		
+		if (request.url == (domainURL +'module-remove')):
+			data = request.get_json()
+			self.delete_module(data['id'])
 
-		return render_template('index.html', moduleCatalog=moduleCatalog, studentCatalog=studentCatalog)
+
+		if (request.url == (domainURL + 'add_module')):
+			addModuleID = request.form['moduleID']
+			addModuleName = request.form['moduleName']
+			addModuleLecturer = request.form['moduleLecturer']
+			addModuleCapacity = request.form['moduleCapacity']
+
+			print(addModuleID, addModuleName, addModuleLecturer, addModuleCapacity)
+
+			self.add_module(addModuleID, addModuleName, addModuleLecturer, addModuleCapacity)
+
+		return redirect(domainURL, code=302)
 
 	def put(self):
 		return "Put"
@@ -91,9 +123,12 @@ class Module(MethodView):
 
 app = Flask(__name__)
 app.add_url_rule('/add_module', view_func=Module.as_view('add_module'))
+app.add_url_rule('/module-remove', view_func=Module.as_view('delete_module'))
+app.add_url_rule('/module-edit', view_func=Module.as_view('edit_module'))
 app.add_url_rule('/module-selected', view_func=Student.as_view('fetch_module_students'))
+
 
 @app.route('/')
 def main():
-	return render_template('index.html', moduleCatalog=moduleCatalog, studentCatalog=studentCatalog)
+	return render_template('index.html', moduleCatalog=moduleCatalog, studentCatalog=studentCatalog, editModuleKey=editModuleKey)
 
