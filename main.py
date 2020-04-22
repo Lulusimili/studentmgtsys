@@ -1,4 +1,4 @@
-from flask import Flask, escape, request, render_template
+from flask import Flask, escape, request, render_template, jsonify
 from flask.views import MethodView
 import json
 import csv
@@ -12,11 +12,14 @@ with open("moduleCatalog.json", "r") as file:
 with open("studentCatalog.json", "r") as file:
 	studentCatalog = json.loads(file.read())
 
-class Student():
+class Student(MethodView):
 
 	def get_students(self):
 		with open("moduleCatalog.json", "r") as file:
 			moduleCatalog = json.loads(file.read())
+
+	def fetch_module_students(self):
+		print('received')
 
 	def add_student(self, studentID, name, email):
 		self.studentID = studentID
@@ -30,6 +33,21 @@ class Student():
 			data.update(studentCatalog)
 			file.seek(0)
 			json.dump(data, file)
+
+
+	def post(self):
+		selectedModule = request.get_data()
+		print(str(selectedModule))
+		return "Post"
+
+	def get(self):
+		return "Get THIS IS A GET"
+
+	def put(self):
+		return "Put"
+
+	def delete(self):
+		return "Delete"
 
 
 class Module(MethodView):
@@ -73,6 +91,7 @@ class Module(MethodView):
 
 app = Flask(__name__)
 app.add_url_rule('/add_module', view_func=Module.as_view('add_module'))
+app.add_url_rule('/module-selected', view_func=Student.as_view('fetch_module_students'))
 
 @app.route('/')
 def main():
