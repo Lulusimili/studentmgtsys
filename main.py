@@ -19,9 +19,6 @@ with open("studentCatalog.json", "r") as file:
 
 class Student(MethodView):
 
-	def get_students(self):
-		with open("moduleCatalog.json", "r") as file:
-			moduleCatalog = json.loads(file.read())
 
 	def get_student(self, value):
 
@@ -30,31 +27,73 @@ class Student(MethodView):
 			for module in studentCatalog[key][-1]:
 				if module == value:
 					selectStudentsInModule[key] = studentCatalog[key][0], studentCatalog[key][1], studentCatalog[key][-1]
+
+		with open("moduleCatalog.json", "r") as file:
+			moduleCatalog = json.loads(file.read())
 		
 		return print(selectStudentsInModule)
-					# print(studentCatalog[key][0], studentCatalog[key][1], [print(module) for module in studentCatalog[key][2]])
 
-
-
-	def add_student(self, studentID, name, email):
+	def add_student(self, studentID, name, email, modulesArray):
 		self.studentID = studentID
 		self.name = name
 		self.email = email
+		self.modulesArray = modulesArray
 
-		studentCatalog[self.studentID] = [self.name, self.email]
+		self.cleanModulesArray = []
 
-		with open("studentCatalog.json", "r+") as file:
-			data = json.load(file)
-			data.update(studentCatalog)
-			file.seek(0)
-			json.dump(data, file)
+		for modules in self.modulesArray:
+			cleaned = modules.split("-",maxsplit=1)[0]
+			self.cleanModulesArray.append(cleaned.strip())
+
+		studentCatalog[self.studentID] = [self.name, self.email, self.cleanModulesArray]
+		print(studentCatalog)
+		with open("studentCatalog.json", "w") as file:
+			json.dump(studentCatalog, file, indent=2)
+
+	def edit_student(self, studentID, name, email, moduleList):
+		studentCatalog[studentID][0] = name
+		studentCatalog[studentID][1] = email
+		studentCatalog[studentID][2] = moduleList
+
+		with open("studentCatalog.json", "w") as file:
+			json.dump(moduleCatalog, file, indent=2)
+			print('Student {} edited.'.format(studentID))
+
+		return
 
 
 	def post(self):
 
+		if (request.url == (domainURL + 'edit-student')):
+			studentID = request.form['studentID']
+			studentName = request.form['studentName']
+			studentEmail = request.form['studentEmail']
+			studentModuleList = request.form.getlist('moduleEnrollment')
+
+			self.edit_student(studentID, studentName, studentEmail, studentModuleList)
+			return redirect(domainURL, code=302)
+
+		if (request.url == (domainURL + 'select-edit-students')):
+			data = request.get_json()
+
+			selectedStudentID = data['id']
+			return jsonify(studentCatalog[data['id']])
+
+		if (request.url == (domainURL + 'get-all-students')):
+			return jsonify(studentCatalog)
+
 		if (request.url == (domainURL + 'get-selected-students')):
 			data = request.json
 			self.get_student(data['id'])
+			return redirect(domainURL, code=302)
+
+		if (request.url == (domainURL + 'register-student')):
+			studentID = request.form['studentID']
+			studentName = request.form['studentName']
+			studentEmail = request.form['studentEmail']
+			studentEnrollment = request.form.getlist('moduleEnrollment')
+
+			self.add_student(studentID, studentName, studentEmail, studentEnrollment)
 			return redirect(domainURL, code=302)
 
 		return "Post"
@@ -81,11 +120,8 @@ class Module(MethodView):
 
 		moduleCatalog[str(moduleID)] = [name, lecturer, capacity]
 
-		with open("moduleCatalog.json", "r+") as file:
-			data = json.load(file)
-			data.update(moduleCatalog)
-			file.seek(0)
-			json.dump(data, file)
+		with open("moduleCatalog.json", "w") as file:
+			json.dump(moduleCatalog, file, indent=2)
 
 		return redirect(domainURL, code=302)
 
@@ -166,6 +202,10 @@ app.add_url_rule('/module-remove', view_func=Module.as_view('delete_module'))
 app.add_url_rule('/module_edit', view_func=Module.as_view('edit_module'))
 app.add_url_rule('/select-module-edit', view_func=Module.as_view('edit_module2'))
 app.add_url_rule('/get-selected-students', view_func=Student.as_view('get_student'))
+app.add_url_rule('/register-student', view_func=Student.as_view('add_student'))
+app.add_url_rule('/remove-student', view_func=Student.as_view('remove_student'))
+app.add_url_rule('/edit-student', view_func=Student.as_view('edit_student'))
+app.add_url_rule('/select-edit-students', view_func=Student.as_view('get_selected_student'))
 
 
 @app.route('/')
