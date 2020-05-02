@@ -8,7 +8,7 @@ domainURL = 'http://127.0.0.1:5000/'
 studentCatalog = dict()
 moduleCatalog = dict()
 
-editModuleKey = 'HELLO'
+global initialModuleID
 
 with open("moduleCatalog.json", "r") as file:
 	moduleCatalog = json.loads(file.read())
@@ -45,7 +45,7 @@ class Student(MethodView):
 		return "Post"
 
 	def get(self):
-		return "Get THIS IS A GET"
+		return "Get"
 
 	def put(self):
 		return "Put"
@@ -80,28 +80,51 @@ class Module(MethodView):
 		with open('moduleCatalog.json', 'w') as updatedModuleJSON:
 			json.dump(moduleCatalog, updatedModuleJSON)
 
-	def edit_module(self, key):
-		global editModuleKey 
-		editModuleKey = key
+	def edit_module(self, moduleID, name, lecturer, capacity):
 
-		return editModuleKey
+		moduleCatalog[moduleID][0] = name
+		moduleCatalog[moduleID][1] = lecturer
+		moduleCatalog[moduleID][2] = int(capacity)
+
+		with open("moduleCatalog.json", "w") as file:
+			json.dump(moduleCatalog, file)
+			print('Module {} edited.'.format(moduleID))
+
 
 	def get(self):
 
-		return "GET"
+		return "Get"
 
 	def post(self):
+		print(request.url)
 
-		if (request.url == (domainURL +'module-edit')):
+		# Get Selected Modules Key/ID to query Dictionary
+		if (request.url == (domainURL +'select-module-edit')):
 			data = request.get_json()
-			return self.edit_module(data['id'])
+
+			initialModuleID = data['id']
+			return jsonify(moduleCatalog[data['id']])
+
+		# Get edited module information based on user input
+		elif (request.url == 'http://127.0.0.1:5000/module_edit'):
+			editModuleID = request.form['moduleID']
+			editModuleName = request.form['moduleName']
+			editModuleLecturer = request.form['moduleLecturer']
+			editModuleCapacity = request.form['moduleCapacity']
+			self.edit_module(editModuleID, editModuleName, editModuleLecturer, editModuleCapacity)
+			return redirect(domainURL, code=302)
+
+
 		
-		if (request.url == (domainURL +'module-remove')):
+		# Get delete request and send to send delete method
+		elif (request.url == (domainURL + 'module-remove')):
 			data = request.get_json()
 			self.delete_module(data['id'])
+			return redirect(domainURL, code=302)
 
-
-		if (request.url == (domainURL + 'add_module')):
+		# Get add module request and send to send add module method
+		# New Module information based on User Input
+		elif (request.url == (domainURL + 'add_module')):
 			addModuleID = request.form['moduleID']
 			addModuleName = request.form['moduleName']
 			addModuleLecturer = request.form['moduleLecturer']
@@ -111,7 +134,12 @@ class Module(MethodView):
 
 			self.add_module(addModuleID, addModuleName, addModuleLecturer, addModuleCapacity)
 
-		return redirect(domainURL, code=302)
+			return redirect(domainURL, code=302)
+
+		else:
+			return redirect(domainURL, code=302)
+
+		return "postposty"
 
 	def put(self):
 		return "Put"
@@ -120,15 +148,17 @@ class Module(MethodView):
 		return "Delete"
 
 
-
 app = Flask(__name__)
 app.add_url_rule('/add_module', view_func=Module.as_view('add_module'))
 app.add_url_rule('/module-remove', view_func=Module.as_view('delete_module'))
-app.add_url_rule('/module-edit', view_func=Module.as_view('edit_module'))
+app.add_url_rule('/module_edit', view_func=Module.as_view('edit_module'))
+app.add_url_rule('/select-module-edit', view_func=Module.as_view('edit_module2'))
 app.add_url_rule('/module-selected', view_func=Student.as_view('fetch_module_students'))
 
 
 @app.route('/')
 def main():
-	return render_template('index.html', moduleCatalog=moduleCatalog, studentCatalog=studentCatalog, editModuleKey=editModuleKey)
+	return render_template('index.html', moduleCatalog=moduleCatalog, studentCatalog=studentCatalog)
 
+if __name__ == '__main__':
+    app.run()
