@@ -42,6 +42,12 @@ $(document).ready(function() {
 	});
 });
 
+$('#student-btn').click(function() {
+	$('#registerStudentForm').attr('action', '/register-student');
+	$('#studentID').removeAttr('readyonly');
+	$('#student-modal-button').html('Register Student');
+	$('#student-options-modal-title').html('Register New Student');
+})
 
 
 //Selected Student on Student List
@@ -62,12 +68,41 @@ $(document).on('click', '.fullStudentList', function(e) {
 	
 	$('.fullStudentList').not($(this)).removeClass('activeStudentRow');
 	$(this).addClass("activeStudentRow");
+
 	selectedStudentID = $(this).attr('data');
+
 	$('.student-option-btn').attr('disabled', 'disabled');
 	$(this).find("button").removeAttr('disabled');
 	$('.student-option-btn').css('background-color', '#6c757d');
 	$(this).find("button").css('background-color', 'orange');
+	$(this).find("button").attr('data-target', '#registerStudent');
+	$(this).find("button").attr('data-toggle', 'modal');
 
+	$('#registerStudentForm').attr('action', '/edit-student');
+	$('#studentID').attr('readonly', 'readonly');
+	$('#student-modal-button').html('Edit Student');
+	$('#student-options-modal-title').html('Edit Student');
+
+	$(this).find("button").attr('data-toggle', 'modal').click(function() {
+
+		console.log('clickedddd')
+		$.ajax({
+			type: 'post',
+			url: '/select-edit-students',
+			contentType: 'application/json; charset=utf-8',
+			data: JSON.stringify({'id': selectedStudentID}),
+			success: function (data) {
+				console.log(data);
+				$('#studentID').val(selectedStudentID);
+				$('#studentName').val(data[0]);
+				$('#studentEmail').val(data[1]);
+				$('.selectpicker').selectpicker('val', data[2]);
+				// data[2].forEach(function(item) {
+				// 	$('.selectpicker').selectpicker('val', item);
+				// });
+			}
+		});	
+	})
 });
 
 
