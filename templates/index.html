@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <script src="https://kit.fontawesome.com/3c57b21ced.js" crossorigin="anonymous"></script>
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/styles.css') }}">
-
-    <title>Student CRM</title>
-  </head>
-  <body>
+<head>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<script src="https://kit.fontawesome.com/3c57b21ced.js" crossorigin="anonymous"></script>
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/styles.css') }}">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+	<title>Student CRM</title>
+</head>
+<body>
 	
 	<!-- Navigation Bar -->
 	<nav class="navbar navbar-light bg-light">
@@ -24,78 +24,108 @@
 
 	<!-- Module Selector -->
 	<div class="jumbotron" style="margin-bottom: 0;">
-		<h1 class="display-5 font-weight-light">Dashboard</h1>
-		<hr class="my-4">
-		<h3 class="display-7 font-weight-lighter">Modules</h3>
-		
-		<div class="list-group">
-			<div id="module_container">
-				{% for key in moduleCatalog %}
-				<a href="#" class="list-group-item list-group-item-action key-{{ key }}">
-					
-					<div class="d-flex w-100 justify-content-between">
-						<h5 class="mb-1"> {{ key }} </h5>
 
-						<small>122/{{ moduleCatalog[key][2] }}  Students Enrolled</small>
 
-					</div>
+		<nav class="navbar navbar-expand-lg navbar-light bg-none">
+		<h1 class="display-5 font-weight-light" id="dashboard">Dashboard</h1>
 
-				<p class="mb-1"> {{ moduleCatalog[key][0] }} </p>
-
-				<small> {{ moduleCatalog[key][1] }} </small>
-				
-				</a>
-				{% endfor %}
+			<div class="collapse navbar-collapse flex-grow-1 text-right" id="navbarNav">
+				<ul class="navbar-nav ml-auto flex-nowrap">
+					<li class="nav-item">
+						<a class="nav-link" href="#" id="viewModules">Modules <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="navbar-nav ml-auto flex-nowrap">
+						<a class="nav-link" href="#" id="viewStudents">Students</a>
+					</li>
+				</ul>
 			</div>
-			<i id="scroll-icon" class="fas fa-angle-down"></i>
+
+			<!-- Search form -->
+			<form id="search-bar" class="form-inline d-flex justify-content-center md-form form-sm">
+			  <input class="form-control form-control-sm mr-3 w-75" type="text" placeholder="Search"
+			    aria-label="Search">
+			  <i class="fas fa-search" aria-hidden="true"></i>
+			</form>
+		</nav>
+		<hr class="my-4">
+		<div id="module-header">
+			<h3 class="display-7 font-weight-lighter">Modules</h3>
+		
+
+			<div class="list-group">
+				<div id="module_container" >
+					<form action="/module-selected" method="post">
+						{% for key in moduleCatalog %}
+						<a href="#" class="list-group-item list-group-item-action" data-moduleid="{{key}}" >
+							
+							<div class="d-flex w-100 justify-content-between">
+								<h5 class="mb-1"> {{ key }} </h5>
+
+								<small>122/{{ moduleCatalog[key][2] }}  Students Enrolled</small>
+
+							</div>
+
+						<p class="mb-1"> {{ moduleCatalog[key][0] }} </p>
+
+						<small> {{ moduleCatalog[key][1] }} </small>
+						
+						</a>
+						{% endfor %}
+					</form>
+				</div>
+				<i id="scroll-icon" class="fas fa-angle-down"></i>
+			</div>
+
+
+
+
+		  	<hr class="my-4">
+			  	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop" id="add-module">Add Module</button>
+			  	<button type="button" class="btn btn-secondary" id="remove-module" disabled="disabled">Remove Module</button>
+			  	<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#staticBackdrop" id="edit-module" disabled="disabled">Edit Module</button>
 		</div>
-
-
-
-
-	  	<hr class="my-4">
-	  	<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop">Add Module</button>
-	  	<button type="button" class="btn btn-secondary">Remove Module</button>
-	  	<button type="button" class="btn btn-secondary">Edit Module</button>
 
 	</div>
+	<div id="student-list-container">
+		<div class="jumbotron" id="student-list" style="background-color: white; padding-top: 20px;">
+			<h3 class="font-weight-light">Student Enrollment</h3>
+			<div>
+				<small>CMPU4064</small>	
+			</div>
+			<br>
+			<table class="table table-striped">
+				<thead>
+					<tr style="cursor: default;">
+						<th scope="col">Student ID</th>
+						<th scope="col">Name</th>
+						<th scope="col">Email</th>
+						<th scope="col">Modules Enrolled</th>
+						<th scope="col">
+							<button id="student-btn" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#registerStudent">Add Student</button>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+			  	{% for key in selectStudentsInModule %}
+				<tr>
+					<th scope="row">{{ key }}</th>
+					<td>{{ selectStudentsInModule[key][0]}}</td>
+					<td>{{ selectStudentsInModule[key][1]}}</td>
 
-	<div class="jumbotron" style="background-color: white; padding-top: 20px;">
-		<h3 class="font-weight-light">Student Enrollment</h3>
-		<div>
-			<small>CMPU4064</small>	
-		</div>
-		<br>
-		<table class="table table-striped">
-			<thead>
-				<tr style="cursor: default;">
-					<th scope="col">Student ID</th>
-					<th scope="col">Name</th>
-					<th scope="col">Email</th>
-					<th scope="col">Modules Enrolled</th>
-					<th scope="col">
-						<button type="button" class="btn btn-primary btn-sm">Add Student</button>
-					</th>
+					<td>{% for modules in selectStudentsInModule[key][2] %}{{ modules }} {% endfor %}</td>
+					
+					<td>
+						<button type="button" class="btn btn-secondary btn-sm student-option-btn">Remove</button>
+					</td>
 				</tr>
-		  </thead>
-		  <tbody>
-		  	{% for key in studentCatalog %}
-			<tr>
-				<th scope="row">{{ key }}</th>
-				<td>{{ studentCatalog[key][0]}}</td>
-				<td>{{ studentCatalog[key][1]}}</td>
-				<td>CMPU4064, CMPU4062, CMPU4060, CMPU4061</td>
-				<td>
-					<button type="button" class="btn btn-secondary btn-sm">Remove</button>
-				</td>
-			</tr>
-			{% endfor %}
-		  </tbody>
-		</table>
+				{% endfor %}
+			  </tbody>
+			</table>
 
+		</div>
 	</div>
-  	<!-- Enrolled Students List -->
-  	<!-- Modal -->
+	<!-- Enrolled Students List -->
+	<!-- Modal -->
 	<div class="modal fade" id="staticBackdrop" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
 		<div class="modal-dialog modal-dialog-centered" role="document">
 			<div class="modal-content">
@@ -107,8 +137,7 @@
 				</div>
 				<div class="modal-body">
 
-
-					<form id="addModuleForm" action="/add_module" method="post">
+					<form id="addModuleForm" action="/add_module" method="POST">
 						<div class="form-group">
 							<label for="moduleID">Module ID</label>
 							<input type="name" class="form-control" id="moduleID" required="required" name="moduleID">
@@ -117,13 +146,13 @@
 							<input type="name" class="form-control" id="moduleName" required="required" name="moduleName">
 
 							<label for="ModuleLecturer">Module Lecturer</label>
-							<input type="name" class="form-control" id="ModuleLecturer" required="required" name="moduleLecturer">
+							<input type="name" class="form-control" id="moduleLecturer" required="required" name="moduleLecturer">
 
 							<label for="ModuleCapacity">Module Capacity</label>
-							<input type="number" class="form-control" id="ModuleCapacity" required="required" name="moduleCapacity">
+							<input type="number" class="form-control" id="moduleCapacity" required="required" name="moduleCapacity">
 							<div class="modal-footer">
 								<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-								<button type="submit" class="btn btn-primary">Add Module</button>
+								<button type="submit" class="btn btn-primary" id="modal-submit-btn">Add Module</button>
 							</div>
 						</div>
 					</form>
@@ -132,11 +161,54 @@
 			</div>
 		</div>
 	</div>
+
+	<!-- Modal -->
+	<div class="modal fade" id="registerStudent" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+	  <div class="modal-dialog modal-dialog-centered" role="document">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h5 class="modal-title" id="exampleModalLongTitle">Register New Student</h5>
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	          <span aria-hidden="true">&times;</span>
+	        </button>
+	      </div>
+	      <div class="modal-body">
+			<form id="registerStudentForm" action="/register-student" method="POST">
+				<div class="form-group">
+					<label for="moduleID">Student ID</label>
+					<input type="name" class="form-control" id="studentID" required="required" name="studentID" required="required">
+
+					<label for="moduleName">Student Name</label>
+					<input type="name" class="form-control" id="studentName" required="required" name="studentName" required="required">
+
+					<label for="ModuleLecturer">Student Email</label>
+					<input type="name" class="form-control" id="studentEmail" required="required" name="studentEmail" required="required">
+					<label for="ModuleLecturer">Student Modules</label>
+					</br>
+					<select class="selectpicker" multiple data-selected-text-format="count > 3" data-width="100%" data-max-options="5">
+						{% for module in moduleCatalog %}
+						<option>{{module}} - {{moduleCatalog[module][0]}}</option>
+						{% endfor %}
+					</select>
+					<div class="modal-footer" style="width: 100%;">
+				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				        <button type="submit" class="btn btn-primary">Register Student</button>
+					</div>
+				</div>
+			</form>
+
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
+
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='frontend.js') }}"></script>
     <script type="text/javascript" src="static/frontend.js"/>
