@@ -7,6 +7,7 @@ domainURL = 'http://127.0.0.1:5000/'
 
 studentCatalog = dict()
 moduleCatalog = dict()
+selectStudentsInModule = dict()
 
 global initialModuleID
 
@@ -22,8 +23,18 @@ class Student(MethodView):
 		with open("moduleCatalog.json", "r") as file:
 			moduleCatalog = json.loads(file.read())
 
-	def fetch_module_students(self):
-		print('received')
+	def get_student(self, value):
+
+		selectStudentsInModule.clear()
+		for key in studentCatalog:
+			for module in studentCatalog[key][-1]:
+				if module == value:
+					selectStudentsInModule[key] = studentCatalog[key][0], studentCatalog[key][1], studentCatalog[key][-1]
+		
+		return print(selectStudentsInModule)
+					# print(studentCatalog[key][0], studentCatalog[key][1], [print(module) for module in studentCatalog[key][2]])
+
+
 
 	def add_student(self, studentID, name, email):
 		self.studentID = studentID
@@ -40,8 +51,12 @@ class Student(MethodView):
 
 
 	def post(self):
-		selectedModule = request.get_data()
-		print(str(selectedModule))
+
+		if (request.url == (domainURL + 'get-selected-students')):
+			data = request.json
+			self.get_student(data['id'])
+			return redirect(domainURL, code=302)
+
 		return "Post"
 
 	def get(self):
@@ -87,7 +102,7 @@ class Module(MethodView):
 		moduleCatalog[moduleID][2] = int(capacity)
 
 		with open("moduleCatalog.json", "w") as file:
-			json.dump(moduleCatalog, file)
+			json.dump(moduleCatalog, file, indent=2)
 			print('Module {} edited.'.format(moduleID))
 
 
@@ -136,9 +151,6 @@ class Module(MethodView):
 
 			return redirect(domainURL, code=302)
 
-		else:
-			return redirect(domainURL, code=302)
-
 		return "postposty"
 
 	def put(self):
@@ -153,12 +165,13 @@ app.add_url_rule('/add_module', view_func=Module.as_view('add_module'))
 app.add_url_rule('/module-remove', view_func=Module.as_view('delete_module'))
 app.add_url_rule('/module_edit', view_func=Module.as_view('edit_module'))
 app.add_url_rule('/select-module-edit', view_func=Module.as_view('edit_module2'))
-app.add_url_rule('/module-selected', view_func=Student.as_view('fetch_module_students'))
+app.add_url_rule('/get-selected-students', view_func=Student.as_view('get_student'))
 
 
 @app.route('/')
 def main():
-	return render_template('index.html', moduleCatalog=moduleCatalog, studentCatalog=studentCatalog)
+	return render_template('index.html', moduleCatalog=moduleCatalog, studentCatalog=studentCatalog, selectStudentsInModule=selectStudentsInModule)
 
 if __name__ == '__main__':
-    app.run()
+	TEMPLATES_AUTO_RELOAD = True
+	app.run()
