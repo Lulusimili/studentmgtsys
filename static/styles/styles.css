@@ -8,6 +8,7 @@ tr {
 	height: 420px;
 	overflow-y: scroll;
 	overflow-x: hidden;
+	transition: all 0.5s;
 }
 
 ::-webkit-scrollbar {
@@ -38,4 +39,45 @@ body::-webkit-scrollbar {
 #module_container::-webkit-scrollbar-thumb {
   background-color: grey;
   border-radius: 5px;
+  transition: all 0.5s;
+}
+
+.menu-items {
+	position: absolute;
+	right: 45px;
+	padding-left: 50px;
+}
+
+#dashboard {
+	cursor: pointer;
+}
+
+
+#search-bar {
+	width: 20% !important;
+	color: none;
+}
+
+#search-bar .form-control {
+	border-width: 0 0 2px 0;
+	background-color: transparent;
+}
+
+.selectpicker {
+	width: 100%;
+	display: inline-block;
+}
+
+
+.activeStudentRow {
+	background-color: #007bff !important;
+	color: white;
+}
+
+#module-selected-form {
+	max-height: 420px;
+}
+
+.fullStudentList {
+	display: none;
 }
