@@ -392,7 +392,7 @@ class Module(MethodView):
 # Routing
 	# Below all routing is handled and sent to appropriate methods.
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app.add_url_rule('/add_module', view_func=Module.as_view('add_module'))
 app.add_url_rule('/module-remove', view_func=Module.as_view('delete_module'))
 app.add_url_rule('/module_edit', view_func=Module.as_view('edit_module'))
