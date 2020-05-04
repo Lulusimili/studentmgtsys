@@ -1,12 +1,25 @@
+$("#search-bar-input").keyup(function() {
 
+    if (!this.value) {
+    	if ($('#viewStudents').hasClass('active')){
+        	$('#viewStudents').trigger('click');
+    	} else {
+    		$('#viewModules').trigger('click');
+    	}
+    }
+});
+
+
+
+$('#student-btn').show();
 // Navigation Bar
 $(document).ready(function() {
 	$('#viewModules').click(function() {
-		$('#viewStudents').removeClass('active');
-		$(this).addClass('active');
 		$('#module-header').show();
 		$('#student-list-container').hide();
-		$('#module_container').css('min-height', 'calc(100vh - 450px)');
+		location.reload();
+		$('#student-btn').hide();
+		$('#student-btn').html('HIDE');
 	});
 });
 
@@ -16,9 +29,214 @@ $(document).ready(function() {
 	});
 });
 
+$(document).ready(function() {
+	$('#viewStudents').removeClass('active');
+	$(this).addClass('active');
+	// $('#module-header').show();
+	// $('#student-list-container').hide();
+	// $('#module_container').css('min-height', 'calc(100vh - 450px)');
+})
+
 
 $(document).ready(function() {
 	$('#viewStudents').click(function() {
+		$('#student-list-container').load(document.URL +  ' #student-list', () => {
+			$('#viewModules').removeClass('active');
+			$(this).addClass('active');
+			$('#module-header').hide();
+			$('#student-list-container').show();
+			$('#student-btn').show();
+			$('#student-btn').html('Register New Student');
+
+			$('.fullStudentList').each(function() {
+				$(this).show();
+			});
+			
+
+			$('.studentEnrollmentList').hide();
+			$('.fullStudentList').css('display', 'all');
+
+
+
+			$('.student-option-btn').each(function() {
+				$(this).html('Edit Student');
+			});				
+		});
+
+	});
+});
+
+$(document).on('click', '#student-btn', function(e) { 
+	console.log('click')
+	$('#registerStudentForm').attr('action', '/register-student');
+	$('#delete-student').hide();
+	$('#studentID').removeAttr('readonly', '');
+	$('#student-modal-button').html('Register Student');
+	$('#student-options-modal-title').html('Register New Student');
+
+	$('#studentID').val('');
+	$('#studentName').val('');
+	$('#studentEmail').val('');
+
+	$('.selectpicker').selectpicker('deselectAll');
+	$('.filter-option-inner-inner').html('No Modules Selected');
+});
+
+
+$('#delete-student').click(function() {
+	let selectedDeleteStudentID;
+	$('.fullStudentList').each(function() {
+		if ($(this).hasClass('activeStudentRow')) {
+			selectedDeleteStudentID = $(this).attr('data');
+			return selectedDeleteStudentID
+		}	
+
+	});
+	console.log(selectedDeleteStudentID)
+	$.ajax({
+		type: 'post',
+		url: '/delete-student',
+		contentType: 'application/json; charset=utf-8',
+		data: JSON.stringify({'id': selectedDeleteStudentID}),
+		success: function (data) {
+			$("#student-modal-close").trigger('click');
+			alert('Student has been deleted.');
+			$('.fullStudentList').each(function() {
+				if ($(this).hasClass('activeStudentRow')) {
+					$(this).remove();
+				}	
+
+			});
+
+		}
+	});		
+})
+
+$(document).ready(function(){
+
+	$('#registerStudentForm').on('submit',function (e) {
+		action = $(this).attr('action');
+		console.log(action)
+		$.ajax({
+			type: 'post',
+			url: action,
+			data: $('#registerStudentForm').serialize(),
+			success: function (data) {
+	   			if (data['status'] == 'AlreadyExists') {
+	   				alert('Student ID Already Exists.')
+	   			}
+
+	   			$('#student-modal-close').trigger('click');
+	   			 if (data.length > 0) {
+					$('#body-container').load(document.URL +  ' .rejected-items', function() {
+						$('#rejectedModulesToggle').trigger('click');
+					});
+
+
+	   			}
+
+				$('#student-list-container').load(document.URL +  ' #student-list', () => {
+					$('#viewModules').removeClass('active');
+					$(this).addClass('active');
+					$('#module-header').hide();
+					$('#student-list-container').show();
+					$('#student-btn').html('Register New Student');
+
+					$('.fullStudentList').each(function() {
+						$(this).show();
+					});
+					
+
+					$('.studentEnrollmentList').hide();
+					$('.fullStudentList').css('display', 'all');
+
+
+
+					$('.student-option-btn').each(function() {
+						$(this).html('Edit Student');
+					});				
+				});
+			}
+		});
+		
+		e.preventDefault();
+
+	});
+
+});
+
+//Search Ajax
+$(document).ready(function(){
+
+	$('#search-bar').on('submit',function (e) {
+		let action;
+
+		if ($('#viewStudents').hasClass('active')) {
+			$('#search-bar').attr('action', '/search-students');
+			action = '/search-students'
+		} 
+
+		if ($('#viewModules').hasClass('active'))  {
+			$('#search-bar').attr('action', '/search-modules');
+			action = '/search-modules'
+		}
+
+		$.ajax({
+			type: 'post',
+			url: action,
+			data: $('#search-bar').serialize(),
+			success: function (data) {
+				console.log(data);
+
+	   			$('.list-group-item-action').each(function() {
+   					$(this).removeClass('search-result');
+   					$(this).show();
+	   			})
+
+	   			$('.fullStudentList').each(function() {
+   					$(this).removeClass('search-result');
+   					$(this).show();
+	   			})
+
+				if (action == '/search-modules' && Object.keys(data).length > 0 ) {
+					Object.keys(data).forEach(function(key,index) {
+			   			$('.list-group-item-action').each(function() {
+			   				if ($(this).attr('data-moduleid') == key) {
+			   					$(this).addClass('search-result');
+			   				}
+			   			}) 
+					});
+		   			$('.list-group-item-action').each(function() {
+		   				if ($(this).hasClass('search-result')) {
+		   					
+		   				} else {
+		   					$(this).hide();
+		   				}
+			   		}) 					
+				} else {
+					Object.keys(data).forEach(function(key,index) {
+			   			$('.fullStudentList').each(function() {
+			   				if ($(this).attr('data') == key) {
+			   					$(this).addClass('search-result');
+			   				}
+			   			}) 
+					});
+		   			$('.fullStudentList').each(function() {
+		   				if ($(this).hasClass('search-result')) {
+		   					
+		   				} else {
+		   					$(this).hide();
+		   				}
+			   		}) 					
+				}
+			}
+		});
+		e.preventDefault();
+	});
+});
+
+$('#rejectedModules-close').click(function() {
+	$('#student-list-container').load(document.URL +  ' #student-list', () => {
 		$('#viewModules').removeClass('active');
 		$(this).addClass('active');
 		$('#module-header').hide();
@@ -37,18 +255,9 @@ $(document).ready(function() {
 
 		$('.student-option-btn').each(function() {
 			$(this).html('Edit Student');
-		});
-
+		});				
 	});
-});
-
-$('#student-btn').click(function() {
-	$('#registerStudentForm').attr('action', '/register-student');
-	$('#studentID').removeAttr('readyonly');
-	$('#student-modal-button').html('Register Student');
-	$('#student-options-modal-title').html('Register New Student');
 })
-
 
 //Selected Student on Student List
 $(document).on('click', '.studentEnrollmentList', function(e) { 
@@ -60,15 +269,49 @@ $(document).on('click', '.studentEnrollmentList', function(e) {
 	$(this).find("button").removeAttr('disabled');
 	$('.student-option-btn').css('background-color', '#6c757d');
 	$(this).find("button").css('background-color', 'orange');
+	$(this).find("button").addClass('active')
+
+	$(this).find("button").click(function() {
+
+		console.log(selectedStudentID);
+		let getStudentsModuleID = '';
+		$('.list-group-item').each(function() {
+			if ($(this).hasClass('active')) {
+				getStudentsModuleID = $(this).data('moduleid');
+				return getStudentsModuleID
+			}
+		})
+
+		if (getStudentsModuleID.length == 0 ) {
+			console.log(getStudentsModuleID.length, 'LENGTH OF ID');
+			alert('Please select a module.');
+		} else {
+			$.ajax({
+				type: 'post',
+				url: '/remove-student-from-module',
+				contentType: 'application/json; charset=utf-8',
+				data: JSON.stringify({'moduleID': getStudentsModuleID, 'studentID': selectedStudentID}),
+				success: function (data) {
+					$('.studentEnrollmentList').each(function() {
+						if ($(this).hasClass('activeStudentRow')) {
+							$(this).remove();
+						}	
+
+					});
+				}
+			});
+		}
+	})
 
 });
+
+
 
 //Selected Student on Student List
 $(document).on('click', '.fullStudentList', function(e) { 
 	
 	$('.fullStudentList').not($(this)).removeClass('activeStudentRow');
 	$(this).addClass("activeStudentRow");
-
 	selectedStudentID = $(this).attr('data');
 
 	$('.student-option-btn').attr('disabled', 'disabled');
@@ -82,6 +325,7 @@ $(document).on('click', '.fullStudentList', function(e) {
 	$('#studentID').attr('readonly', 'readonly');
 	$('#student-modal-button').html('Edit Student');
 	$('#student-options-modal-title').html('Edit Student');
+	$('#delete-student').show();
 
 	$(this).find("button").attr('data-toggle', 'modal').click(function() {
 
