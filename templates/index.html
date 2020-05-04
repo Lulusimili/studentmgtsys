@@ -23,7 +23,7 @@
 	</nav>
 
 	<!-- Module Selector -->
-	<div class="jumbotron" style="margin-bottom: 0;">
+	<div class="jumbotron" style="margin-bottom: 0;" id="main-jumbo">
 
 
 		<nav class="navbar navbar-expand-lg navbar-light bg-none">
@@ -32,7 +32,7 @@
 			<div class="collapse navbar-collapse flex-grow-1 text-right" id="navbarNav">
 				<ul class="navbar-nav ml-auto flex-nowrap">
 					<li class="nav-item">
-						<a class="nav-link" href="#" id="viewModules">Modules <span class="sr-only">(current)</span></a>
+						<a class="nav-link active" href="#" id="viewModules">Modules <span class="sr-only">(current)</span></a>
 					</li>
 					<li class="navbar-nav ml-auto flex-nowrap">
 						<a class="nav-link" href="#" id="viewStudents">Students</a>
@@ -41,27 +41,30 @@
 			</div>
 
 			<!-- Search form -->
-			<form id="search-bar" class="form-inline d-flex justify-content-center md-form form-sm">
-			  <input class="form-control form-control-sm mr-3 w-75" type="text" placeholder="Search"
-			    aria-label="Search">
-			  <i class="fas fa-search" aria-hidden="true"></i>
+			<form id="search-bar" action="/search-modules" class="form-inline d-flex justify-content-center md-form form-sm">
+			  <input id="search-bar-input" class="form-control form-control-sm mr-3 w-75" type="text" placeholder="Search"
+			    aria-label="Search" name="search">
+				<button type="submit" style="border-color: none; background-color: transparent; border-width: 0;">
+			  		<i class="fas fa-search" aria-hidden="true"></i>
+		 		</button>
 			</form>
 		</nav>
 		<hr class="my-4">
 		<div id="module-header">
 			<h3 class="display-7 font-weight-lighter">Modules</h3>
 		
-
-			<div class="list-group">
-				<div id="module_container" >
+		<div id="moduleContainer"></div>
+			<div class="list-group" id="module-form">
+				<div id="module_container" style="min-height: calc(100vh - 450px);">
 					<form action="/module-selected" method="post" id="module-selected-form">
 						{% for key in moduleCatalog %}
 						<a href="#" class="list-group-item list-group-item-action" data-moduleid="{{key}}" >
 							
 							<div class="d-flex w-100 justify-content-between">
 								<h5 class="mb-1"> {{ key }} </h5>
+								
+								<small>{{ enrollmentFigures[key] }}/{{ moduleCatalog[key][2] }}  Students Enrolled</small>
 
-								<small>122/{{ moduleCatalog[key][2] }}  Students Enrolled</small>
 
 							</div>
 
@@ -98,7 +101,7 @@
 						<th scope="col">Email</th>
 						<th scope="col">Modules Enrolled</th>
 						<th scope="col">
-							<button id="student-btn" type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#registerStudent">Add Student</button>
+							<button id="student-btn" type="button" class="btn btn-primary btn-sm register-student-class" data-toggle="modal" data-target="#registerStudent">Register New Student</button>
 						</th>
 					</tr>
 				</thead>
@@ -112,7 +115,7 @@
 					<td>{% for modules in selectStudentsInModule[key][2] %}{{ modules }} {% endfor %}</td>
 					
 					<td class="student-option-btn-container">
-						<button type="button" class="btn btn-secondary btn-sm student-option-btn" disabled="disabled">Remove</button>
+						<button type="button" id="remove-student" class="btn btn-secondary btn-sm student-option-btn" disabled="disabled">Remove</button>
 					</td>
 				</tr>
 				{% endfor %}
@@ -202,8 +205,9 @@
 						{% endfor %}
 					</select>
 					<div class="modal-footer" style="width: 100%;">
-				        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				        <button id="student-modal-close" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 				        <button type="submit" class="btn btn-primary" id="student-modal-button">Register Student</button>
+				        <button id="delete-student" type="button" class="btn btn-primary" id="student-modal-button" style="background-color: red;">Delete Student</button>
 					</div>
 				</div>
 			</form>
@@ -213,7 +217,51 @@
 	  </div>
 	</div>
 
+	<div id="rejectedContainer">
+	<!-- Rejected Modules -->
+	<!-- Button trigger modal -->
+		<button type="button" id="rejectedModulesToggle" class="btn btn-primary" data-toggle="modal" data-target="#rejectModuleModal" style="display: none;">
+		  Rejected Modules
+		</button>
+	<!-- Modal -->
+		<div class="modal fade" id="rejectModuleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		  <div class="modal-dialog modal-dialog-centered" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="exampleModalLabel">Modules Have Reached Full Capacity</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body" id="rejected-modal-body">
+		        The following Modules have reached full capacity.
+		        <br>
+		        <div id="body-container">
+				{% for key in rejectedModules %}
+				<a href="#" class="list-group-item list-group-item-action rejected-items" data-moduleid="{{key}}" >
+					
+					<div class="d-flex w-100 justify-content-between">
+						<h5 class="mb-1"> {{ key }} </h5>
 
+						<small>{{ enrollmentFigures[key] }}/{{ moduleCatalog[key][2] }}  Students Enrolled</small>
+
+					</div>
+
+				<p class="mb-1"> {{ moduleCatalog[key][0] }} </p>
+
+				<small> {{ moduleCatalog[key][1] }} </small>
+				
+				</a>
+				{% endfor %}
+				</div>
+		      </div>
+		      <div class="modal-footer">
+		        <button id="rejectedModules-close" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+	</div>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
