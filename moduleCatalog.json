@@ -1,0 +1,25 @@
+{
+  "CMPU4064": [
+    "System Analysis and Testing",
+    "John Doe",
+    2,
+    0
+  ],
+  "CMPU4062": [
+    "Architecture, Operating Systems & Networks",
+    "Jane Doe",
+    2,
+    0
+  ],
+  "CMPU4060": [
+    "Object Oriented Software Development",
+    "Andrew Gorman",
+    2,
+    0
+  ],
+  "CMPU5959": [
+    "Machine Learning",
+    "Andrew Gorman",
+    "5"
+  ]
+}
