@@ -51,18 +51,23 @@ selectStudentsInModule = dict()
 rejectedModules = []
 fetchedModuleResults = dict()
 
-# xyz = dict()
-
-# with open("moduleCatalog.json", "r") as file:
-# 	moduleCatalog = json.loads(file.read())
-
-# with open("studentCatalog.json", "r") as file:
-# 	studentCatalog = json.loads(file.read())
-
-domainURL = 'http://127.0.0.1:5000/'
+domainURL = 'https://d19124355studentmgmtsystem.herokuapp.com/'
 
 # Initialize Firestore DB
-cred = credentials.Certificate(os.environ.get("PROJECT_ID"), os.environ.get("PRIVATE_KEY"), os.environ.get("PRIVATE_KEY_ID"))
+cred = credentials.Certificate({
+  "type": "service_account",
+  "project_id": "d19124355-studentmgmtsys-88b1b",
+  "private_key_id": "2a35e7fd1d58f702fe659b39d52577cf4481580d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDlrYmKKhZC07sA\nbkJIt++Ezn/sCARq3aUPzGofLEbBZq8J01okMghgXW8L5ZeheQUdoWnpEO02NIrc\nWf25E1F8HS56/ALzmcOSXgfXMv+umbWNpD+Af1gWWRpx/33LG/E/mMxt2xbAX0gz\ndnH8f5wYy180WFeFJmtedlQnSObBaqvK9ci/2SDokU2RdKIEeSv3LPY2C95jHt0b\nr3YWZJeG5hB8yRoavsqAUR4O2FSybCxxI8HsBnzfr3qa3teuIiFYfiR6MkNWlgPc\nU5wZldqPl9AWyrkzggZ2txSoKXmkvtUOcdao3G4CsjkP6mWIw/vIAJKpOVz/lgXt\nHs484ILLAgMBAAECggEAMsKLpzFuAg7xQUMc+x1LnjpVI0ESWNvrYvZ2bbVHXe7n\nuHAxd9Zm64U6yZJQVKt+afIGii/nfRdXqSNqY8DVPWzlnOCddmEBTBPj/7eRsnDe\nIxOtxSRfv3Cp24/vqTfftYJ7i7vj51gniNggkQFS6lfoDpWHojG/gPz91EDUXuJd\nFwiECTB+rGU18J/X9rEJDtZenaERfJLrJ6cRWcwDLJGzDh07oZd9YCBObzNqkecu\nMrKTfTsH6nH+XhonxSWeGjOD0HlS2+LBt9W8P1dlMswSdeHkd5DAiSuloE83HWuW\nO7kR0d3IOMsFpv6nMs7xm1AWZGuWDyodIOHZHyYQ4QKBgQD81GDsms2rfs6/9iSv\nfNGYFF5OP6i+ppcApz49Z89R00Ze0dWOfvONhYskXy6rt9dFYzRboP+JFnkIjUVV\n09mwHkOtOCbO6rKNO5u7cxp7UVHCxW/+JMsxe8Zj0pwBcogpUbT/6UZRmoFF7yc3\n1lq28wWxceRqH1LJ6x/oNtN9nwKBgQDojtaONGCC+Lb87LnF38xYbjw2oehoGlc5\nqTcExhoG+0v+TvedcgbI5iuYRacVaEZs2pgeZVptXJXx8gSVKm5HhLda1lm64vy+\nw++WL4CYHfEe4yD/wDeSj2d8YGPWkVOFpJIuJpn2ZXKD0ATjuGH6xUFD+ScXlzpS\nOZU9P4sTVQKBgQCj5DwsRDE8kUgOsc2YIG5xigqT6LpHVBAgsUksXwXKgg1k29r2\nsx7IR6Ap5LWJRPP8G9HN7/CV+gZdX85pU5oSi5vNRtAJY6R43wIVogixlcZNXtU5\nRrqdCiJRhS3x1j+joT6Wga4+qcxQ/DVNAdvuKl0vaKfrjwCIua0GR7wS+wKBgGVX\ncXoQqwoH9j3rrtzitLrIdubb0VokOGSBL9+dsFPgiHIu2Uq8GObNHqxBlhkHEsF2\n1JlSU4CauyDu9T5Hej0iQYCNLhb5uWgsHCjXVHN1gNCT65pnmg/8+/zASGGFfN8d\nIzKHUcqE1M1KBgdyHwhXkyRa28U0+o5AV5+UJDftAoGBAI415uBpapZmp584ZV6I\nvXa19UmcbebB7oLosGBwdPW4Ek01VeYwV9U2EvtMXZq9LJrdqZ2fowa+xQ8As3H4\nx0Z+D2hRKq+zeMeJHLwXMjZYyx2DPBusIAonLzJmIbEhIUljkT7nYCH30DdqiyGs\nhJUhG4CqZ12a4E5E8ZAr/oRb\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-dw0e5@d19124355-studentmgmtsys-88b1b.iam.gserviceaccount.com",
+  "client_id": "113009878211073697270",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-dw0e5%40d19124355-studentmgmtsys-88b1b.iam.gserviceaccount.com"
+})
+
+
 default_app = initialize_app(cred)
 db = firestore.client()
 
@@ -70,24 +75,14 @@ studentCatalog_ref = db.collection('studentCatalog')
 moduleCatalog_ref = db.collection('moduleCatalog')
 
 # Jinja2 Initialise
-# studentCatalog_firebase = doc.to_dict() 
 
-# for doc in studentCatalog_ref.document().stream():
-# 	studentCatalog_firebase = doc.to_dict() 
-# 	print(studentCatalog_firebase)
+def getStudents():
+	for key in studentCatalog_ref.stream():
+		studentCatalog[key.id] = [key.to_dict()['name'], key.to_dict()['email'], key.to_dict()['modules']]
 
-for key in studentCatalog_ref.stream():
-	studentCatalog[key.id] = [key.to_dict()['name'], key.to_dict()['email'], key.to_dict()['modules']]
-
-for key in moduleCatalog_ref.stream():
-	moduleCatalog[key.id] = [key.to_dict()['title'], key.to_dict()['lecturer'], key.to_dict()['capacity']]
-	# db.collection("studentCatalog").where(key.id, "array-contains", "Andrew").get()
-
-# moduleCatalog_firebase = list(doc.to_dict() for doc in moduleCatalog_ref.get())
-
-# print(studentCatalog_firebase)
-# print(studentCatalog)
-
+def getModules():
+	for key in moduleCatalog_ref.stream():
+		moduleCatalog[key.id] = [key.to_dict()['title'], key.to_dict()['lecturer'], key.to_dict()['capacity']]
 
 class Student(MethodView):
 	# Get all students enrolled in a selected module. These students are temporarily added to a dictionary and returned back to javascript for it to be displayed to the user. The dictionary is destroyed once user has changed their module selection.
@@ -98,9 +93,6 @@ class Student(MethodView):
 			for module in studentCatalog[key][-1]:
 				if module == value:
 					selectStudentsInModule[key] = studentCatalog[key][0], studentCatalog[key][1], studentCatalog[key][-1]
-
-		with open("moduleCatalog.json", "r") as file:
-			moduleCatalog = json.loads(file.read())
 		
 		return print(selectStudentsInModule)
 
@@ -132,22 +124,19 @@ class Student(MethodView):
 				if (len(self.modulesArray) <= 5 and moduleCounter < int(moduleCapacity)):
 
 					mlist.append(modules)
-					studentCatalog[self.studentID] = [self.name, self.email, mlist]
 
-					add_student_info = {'name': self.name, 'email':  self.email, 'modules':  mlist}
+					add_student_info = {'name': str(self.name), 'email':  str(self.email), 'modules':  mlist}
 					studentCatalog_ref.document(self.studentID).set(add_student_info)
 				else: 
 					print(modules, ' is Full')
 					rejectedModules.append(modules)
 		else:
-			studentCatalog[self.studentID] = [self.name, self.email, self.modulesArray]
+			studentCatalog[self.studentID] = [str(self.name), str(self.email), self.modulesArray]
 			add_student_info = {'name': self.name, 'email':  self.email, 'modules':  self.modulesArray}
 			studentCatalog_ref.document(self.studentID).set(add_student_info)
 
 		print(rejectedModules, 'rejectedModules')
 		
-		with open("studentCatalog.json", "w") as file:
-					json.dump(studentCatalog, file, indent=2)
 
 		return rejectedModules
 
@@ -155,23 +144,21 @@ class Student(MethodView):
 
 	# The Search feature is build to suport a variety of searches. It recursively searches each student to find match. If search value is not an Student ID, it will search across the columns to find a match. If not match is found, it will continue onto next student, and repeat. The search does not support upper and lower case matching but I hope to implement this in the future.
 
-	def search(self, value):
+	def search_student(self, value):
 		fetchedStudentResults = dict()
 		fetchCounter = 0
-
-		for key in studentCatalog_ref.stream():
+		for key in studentCatalog:
+			print(key)
 			index = 0
-			if value == key.id:
-				returnedData = studentCatalog_ref.document(key.id).get().to_dict()
-
-				print(returnedData.keys(), 'SEARCHED')
-			# else:
-				# while index < len(studentCatalog_ref.document(key.id).get()) - 1:
-			# 		if value in studentCatalog[key][index]:
-			# 			returnedData[key.id] = [returnedData[key.id]['name'], returnedData[key]['email'], returnedData[key.id]['modules']]
-			# 			index += 1
-			# 		else:
-			# 			index += 1
+			if value == key:
+				fetchedStudentResults[key] = [studentCatalog[key]['name'], studentCatalog[key]['email'], studentCatalog[key]['modules']]
+			else:
+				while index < len(studentCatalog[key]) - 1:
+					if value in studentCatalog[key][index]:
+						fetchedStudentResults[key] = [studentCatalog[key]['name'], studentCatalog[key]['email'], studentCatalog[key]['modules']]
+						index += 1
+					else:
+						index += 1
 
 		print(fetchedStudentResults)
 
@@ -187,18 +174,12 @@ class Student(MethodView):
 				print(studentCatalog[studentID][-1][0])
 				studentCatalog[studentID][-1].pop(0)
 		
-		with open('studentCatalog.json', 'w') as updatedStudentJSON:
-			json.dump(studentCatalog, updatedStudentJSON)
 		return 'removed'
 
 	# Students can be deleted in Students > Select Student > Edit Student > Delete.
 
 	def delete_student(self, key):
-		studentCatalog.pop(str(key), None)
-		print(studentCatalog)	
-
-		with open('studentCatalog.json', 'w') as updatedStudentJSON:
-			json.dump(studentCatalog, updatedStudentJSON)
+		studentCatalog_ref.document(key).delete()
 
 		return "Student Deleted"
 
@@ -219,7 +200,7 @@ class Student(MethodView):
 			data = request.form['search']
 			print(data)
 			if (len(data) > 0):
-				return self.search(data)
+				return self.search_student(data)
 
 
 		if (request.url == (domainURL + 'remove-student-from-module')):
@@ -270,13 +251,10 @@ class Student(MethodView):
 				print(status)
 				return status
 
-		return jsonify(status)
+			return jsonify(status)
 
 		return "Post"
 
-	def get(self):
-		print('get')
-		return 'hello get'
 
 # All module handling is done using a Module class.
 
@@ -291,28 +269,15 @@ class Module(MethodView):
 
 		print('PRINT', moduleID, name, lecturer, capacity)
 
-		moduleCatalog[str(moduleID)] = [name, lecturer, capacity]
-
-		add_module_info = {'title': self.name, 'lecturer':  self.lecturer, 'capacity':  self.capacity}
-		moduleCatalog_ref.document(self.moduleID).set(add_module_info)
-
-		with open("moduleCatalog.json", "w") as file:
-			json.dump(moduleCatalog, file, indent=2)
+		add_module_info = {'title': str(self.name), 'lecturer':  str(self.lecturer), 'capacity':  self.capacity}
+		moduleCatalog_ref.document(str(self.moduleID)).set(add_module_info)
 
 		return redirect(domainURL, code=302)
 
 	# Users can delete a module. Once a module is delete, all instances of that module is removed from a students enrollment history.
 	def delete_module(self, key):
-		for student in studentCatalog:
-			for module in studentCatalog[student][-1]:
-				if module == key:
-					print(studentCatalog[student][-1][0])
-					studentCatalog[student][-1].pop(0)
+		moduleCatalog_ref.document(key).delete()
 
-		moduleCatalog.pop(str(key), None)
-
-		with open('moduleCatalog.json', 'w') as updatedModuleJSON:
-			json.dump(moduleCatalog, updatedModuleJSON)
 
 	# Users can edit any module.
 
@@ -329,9 +294,6 @@ class Module(MethodView):
 		edit_module_info = {'title': self.name, 'lecturer':  self.lecturer, 'capacity':  self.capacity}
 		moduleCatalog_ref.document(self.moduleID).set(edit_module_info)
 
-		with open("moduleCatalog.json", "w") as file:
-			json.dump(moduleCatalog, file, indent=2)
-			print('Module {} edited.'.format(moduleID))
 
 	# Searching a module is similar to searching a student, and support a variety of different search words.
 	def search_module(self, value):
@@ -427,6 +389,9 @@ app.add_url_rule('/delete-student', view_func=Student.as_view('delete_student'))
 
 @app.route('/')
 def main():
+	getStudents()
+	getModules()
+
 	moduleList = []
 	for student in studentCatalog:
 		for module in studentCatalog[student][-1]:
