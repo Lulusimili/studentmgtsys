@@ -1,4 +1,6 @@
-
+$theme-colors: (
+  primary: #976aff
+);
 tr {
 	cursor: pointer;
 }
@@ -34,12 +36,15 @@ body::-webkit-scrollbar {
   padding-left: 2px;
 }
 
+#module_header {
+	transition: all 0.5s;
+}
+
 
 #module_container::-webkit-scrollbar-thumb {
   background-color: grey;
   border-radius: 5px;
   transition: all 0.5s;
-  min-height: calc(100vh - 450px);
 }
 
 .menu-items {
@@ -81,3 +86,5 @@ body::-webkit-scrollbar {
 .fullStudentList {
 	display: none;
 }
+
+/*color: #976aff;*/
