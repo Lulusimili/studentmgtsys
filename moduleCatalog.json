@@ -2,7 +2,7 @@
   "CMPU4064": [
     "System Analysis and Testing",
     "John Doe",
-    2,
+    55,
     0
   ],
   "CMPU4062": [
@@ -14,11 +14,16 @@
   "CMPU4060": [
     "Object Oriented Software Development",
     "Andrew Gorman",
-    2,
+    5,
     0
   ],
   "CMPU5959": [
     "Machine Learning",
+    "Andrew Gorman",
+    "5"
+  ],
+  "CMPU6969": [
+    "Data Structures",
     "Andrew Gorman",
     "5"
   ]

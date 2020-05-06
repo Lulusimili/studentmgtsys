@@ -62,7 +62,7 @@ fetchedModuleResults = dict()
 domainURL = 'http://127.0.0.1:5000/'
 
 # Initialize Firestore DB
-cred = credentials.Certificate('key.json')
+cred = credentials.Certificate(os.environ.get("PROJECT_ID"), os.environ.get("PRIVATE_KEY"), os.environ.get("PRIVATE_KEY_ID"))
 default_app = initialize_app(cred)
 db = firestore.client()
 
