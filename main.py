@@ -2,17 +2,9 @@ from flask import Flask, escape, request, render_template, jsonify, redirect, ur
 from flask.views import MethodView
 import json
 import csv
+import os
 from collections import Counter
-
-domainURL = 'http://127.0.0.1:5000/'
-
-studentCatalog = dict()
-moduleCatalog = dict()
-selectStudentsInModule = dict()
-rejectedModules = []
-fetchedModuleResults = dict()
-
-global initialModuleID
+from firebase_admin import credentials, firestore, initialize_app
 
 '''
 HOW TO USE
@@ -25,12 +17,13 @@ HOW TO USE
 		- Add/Edit Students
 		- All Users can Borrow and Return Book
 	
-	Prior to using, users must install flask by 
+	To run locally, users must install flask by 
 
 		pip install flask
 
 	Flask is a lightweight WSGI web application framework. It is designed to make getting started quick and easy, with the ability to scale up to complex applications.
 	Documentation can be found here - https://pypi.org/project/Flask/
+
 
 	Once Flask is installed, the application can be run by typing the following into the terminal in the directory of main.py:
 	
@@ -42,18 +35,58 @@ TECHNOLOGIES USED
 
 	- Python
 	- Flask
+	- Heroku
+	- Firebase
 	- Jquery
+	- Jinja2
 	- Ajax
 	- Bootstrap
 	- Javascript
 	- HTML/CSS
 ____________________________________________________'''
 
-with open("moduleCatalog.json", "r") as file:
-	moduleCatalog = json.loads(file.read())
+studentCatalog = dict()
+moduleCatalog = dict()
+selectStudentsInModule = dict()
+rejectedModules = []
+fetchedModuleResults = dict()
 
-with open("studentCatalog.json", "r") as file:
-	studentCatalog = json.loads(file.read())
+# xyz = dict()
+
+# with open("moduleCatalog.json", "r") as file:
+# 	moduleCatalog = json.loads(file.read())
+
+# with open("studentCatalog.json", "r") as file:
+# 	studentCatalog = json.loads(file.read())
+
+domainURL = 'http://127.0.0.1:5000/'
+
+# Initialize Firestore DB
+cred = credentials.Certificate('key.json')
+default_app = initialize_app(cred)
+db = firestore.client()
+
+studentCatalog_ref = db.collection('studentCatalog')
+moduleCatalog_ref = db.collection('moduleCatalog')
+
+# Jinja2 Initialise
+# studentCatalog_firebase = doc.to_dict() 
+
+# for doc in studentCatalog_ref.document().stream():
+# 	studentCatalog_firebase = doc.to_dict() 
+# 	print(studentCatalog_firebase)
+
+for key in studentCatalog_ref.stream():
+	studentCatalog[key.id] = [key.to_dict()['name'], key.to_dict()['email'], key.to_dict()['modules']]
+
+for key in moduleCatalog_ref.stream():
+	moduleCatalog[key.id] = [key.to_dict()['title'], key.to_dict()['lecturer'], key.to_dict()['capacity']]
+	# db.collection("studentCatalog").where(key.id, "array-contains", "Andrew").get()
+
+# moduleCatalog_firebase = list(doc.to_dict() for doc in moduleCatalog_ref.get())
+
+# print(studentCatalog_firebase)
+# print(studentCatalog)
 
 
 class Student(MethodView):
@@ -71,7 +104,9 @@ class Student(MethodView):
 		
 		return print(selectStudentsInModule)
 
-	# Add students
+	# To add a student, users must enter a unique student ID, name and email address. Users also have the option of selecting which modules a student will be enrolled in. This is limited to 5 modules.
+
+	# Each module capacity is checked and ensures no student can be added to a module that may be full. Any module that has reached full capacity is added to a rejected module array and returned back to the user. Any module that has available space is allowed to proceed in the enrollment process.
 	def add_student(self, studentID, name, email, modulesArray):
 		self.studentID = studentID
 		self.name = name
@@ -98,11 +133,16 @@ class Student(MethodView):
 
 					mlist.append(modules)
 					studentCatalog[self.studentID] = [self.name, self.email, mlist]
+
+					add_student_info = {'name': self.name, 'email':  self.email, 'modules':  mlist}
+					studentCatalog_ref.document(self.studentID).set(add_student_info)
 				else: 
 					print(modules, ' is Full')
 					rejectedModules.append(modules)
 		else:
 			studentCatalog[self.studentID] = [self.name, self.email, self.modulesArray]
+			add_student_info = {'name': self.name, 'email':  self.email, 'modules':  self.modulesArray}
+			studentCatalog_ref.document(self.studentID).set(add_student_info)
 
 		print(rejectedModules, 'rejectedModules')
 		
@@ -110,79 +150,35 @@ class Student(MethodView):
 					json.dump(studentCatalog, file, indent=2)
 
 		return rejectedModules
-
-
-# Edit Student
-
-	# Students can be edited in the Student Section > Edit Student.
-
-	# User must ensure that a student is selected before edit button is enabled.
-
-	# Students can be removed or added to modules through the edit student modal.
-
-
-	def edit_student(self, studentID, name, email, modulesArray):
-		self.studentID = studentID
-		self.name = name
-		self.email = email
-		self.modulesArray = modulesArray
-		rejectedModules.clear()
-		# Find Capacity of Selected Modules
-		mlist = []
-
-
-		if (len(self.modulesArray) > 0):
-			for modules in self.modulesArray:
-				moduleCapacity = moduleCatalog[modules][2]
-				moduleCounter = 0
-				
-				# Find Current Number of Students enrolled in Module
-				for students in studentCatalog:
-					for studentModules in studentCatalog[students][-1]:
-						if (studentModules == modules or len(modules) == 0):
-							moduleCounter += 1
-				print(moduleCounter, 'Students in ', modules)
-				# Ensures no student can ensure in a module that is full.
-				if (len(self.modulesArray) <= 5 and moduleCounter < int(moduleCapacity)):
-
-					mlist.append(modules)
-					studentCatalog[self.studentID] = [self.name, self.email, mlist]
-				else: 
-					print(modules, ' is Full')
-					rejectedModules.append(modules)
-		else:
-			studentCatalog[self.studentID] = [self.name, self.email, self.modulesArray]
-
-		print(rejectedModules, 'rejectedModules')
-		
-		with open("studentCatalog.json", "w") as file:
-					json.dump(studentCatalog, file, indent=2)
-
-		return rejectedModules
-
 
 # SEARCHING A Student
 
-	# The Search feature is build to suport a variety of searches. It recursively searches each student to find match. If search value is not an Student ID, it will search across the columns to find a match. If not match is found, it will continue onto next student, and repeat.
+	# The Search feature is build to suport a variety of searches. It recursively searches each student to find match. If search value is not an Student ID, it will search across the columns to find a match. If not match is found, it will continue onto next student, and repeat. The search does not support upper and lower case matching but I hope to implement this in the future.
 
-	def search_student(self, value):
+	def search(self, value):
 		fetchedStudentResults = dict()
 		fetchCounter = 0
-		for key in studentCatalog:
+
+		for key in studentCatalog_ref.stream():
 			index = 0
-			if value == key:
-				fetchedStudentResults[key] = [studentCatalog[key][0], studentCatalog[key][1], studentCatalog[key][2]]
-			else:
-				while index < len(studentCatalog[key]) - 1:
-					if value in studentCatalog[key][index]:
-						fetchedStudentResults[key] = [studentCatalog[key][0], studentCatalog[key][1], studentCatalog[key][2]]
-						index += 1
-					else:
-						index += 1
+			if value == key.id:
+				returnedData = studentCatalog_ref.document(key.id).get().to_dict()
+
+				print(returnedData.keys(), 'SEARCHED')
+			# else:
+				# while index < len(studentCatalog_ref.document(key.id).get()) - 1:
+			# 		if value in studentCatalog[key][index]:
+			# 			returnedData[key.id] = [returnedData[key.id]['name'], returnedData[key]['email'], returnedData[key.id]['modules']]
+			# 			index += 1
+			# 		else:
+			# 			index += 1
 
 		print(fetchedStudentResults)
 
 		return fetchedStudentResults
+
+	# Students can be removed from module by selecting Module > Selecting Student > Remove. 
+	# User must ensure a module has been selected before attempting to remove a user. Once user is removed, the json file is updated.
 
 	def remove_student_from_module(self, studentID, moduleID):
 
@@ -194,6 +190,8 @@ class Student(MethodView):
 		with open('studentCatalog.json', 'w') as updatedStudentJSON:
 			json.dump(studentCatalog, updatedStudentJSON)
 		return 'removed'
+
+	# Students can be deleted in Students > Select Student > Edit Student > Delete.
 
 	def delete_student(self, key):
 		studentCatalog.pop(str(key), None)
@@ -207,7 +205,7 @@ class Student(MethodView):
 
 # Post Handling
 
-	# All post handling in doing using a post method. Primarily Ajax was used to post to flask.
+	# All post handling in doing using a post method and routed to suitable methods. Primarily Ajax was used to post to flask. Any data returned is also handled by jquery and displayed to user.
 
 	def post(self):
 
@@ -221,7 +219,7 @@ class Student(MethodView):
 			data = request.form['search']
 			print(data)
 			if (len(data) > 0):
-				return self.search_student(data)
+				return self.search(data)
 
 
 		if (request.url == (domainURL + 'remove-student-from-module')):
@@ -239,7 +237,7 @@ class Student(MethodView):
 			studentEmail = request.form['studentEmail']
 			studentModuleList = request.form.getlist('moduleEnrollment')
 			print(studentID, studentName, studentEmail, studentModuleList, 'from edit form')
-			self.edit_student(studentID, studentName, studentEmail, studentModuleList)
+			self.add_student(studentID, studentName, studentEmail, studentModuleList)
 			return jsonify(rejectedModules)
 
 		if (request.url == (domainURL + 'select-edit-students')):
@@ -280,8 +278,11 @@ class Student(MethodView):
 		print('get')
 		return 'hello get'
 
+# All module handling is done using a Module class.
+
 class Module(MethodView):
 
+	# Users can add a module which is then written to a json file, stored locally.
 	def add_module(self, moduleID, name, lecturer, capacity):
 		self.moduleID = moduleID
 		self.name = name
@@ -292,11 +293,15 @@ class Module(MethodView):
 
 		moduleCatalog[str(moduleID)] = [name, lecturer, capacity]
 
+		add_module_info = {'title': self.name, 'lecturer':  self.lecturer, 'capacity':  self.capacity}
+		moduleCatalog_ref.document(self.moduleID).set(add_module_info)
+
 		with open("moduleCatalog.json", "w") as file:
 			json.dump(moduleCatalog, file, indent=2)
 
 		return redirect(domainURL, code=302)
 
+	# Users can delete a module. Once a module is delete, all instances of that module is removed from a students enrollment history.
 	def delete_module(self, key):
 		for student in studentCatalog:
 			for module in studentCatalog[student][-1]:
@@ -309,16 +314,26 @@ class Module(MethodView):
 		with open('moduleCatalog.json', 'w') as updatedModuleJSON:
 			json.dump(moduleCatalog, updatedModuleJSON)
 
+	# Users can edit any module.
+
 	def edit_module(self, moduleID, name, lecturer, capacity):
+		self.moduleID = moduleID
+		self.name = name
+		self.lecturer = lecturer
+		self.capacity = capacity
 
 		moduleCatalog[moduleID][0] = name
 		moduleCatalog[moduleID][1] = lecturer
 		moduleCatalog[moduleID][2] = int(capacity)
 
+		edit_module_info = {'title': self.name, 'lecturer':  self.lecturer, 'capacity':  self.capacity}
+		moduleCatalog_ref.document(self.moduleID).set(edit_module_info)
+
 		with open("moduleCatalog.json", "w") as file:
 			json.dump(moduleCatalog, file, indent=2)
 			print('Module {} edited.'.format(moduleID))
 
+	# Searching a module is similar to searching a student, and support a variety of different search words.
 	def search_module(self, value):
 		fetchedModuleResults.clear()
 		fetchCounter = 0
@@ -338,6 +353,9 @@ class Module(MethodView):
 
 		return fetchedModuleResults
 
+# Post Handling
+
+	# All post handling in doing using a post method and routed to suitable methods. Primarily Ajax was used to post to flask. Any data returned is also handled by jquery and displayed to user.
 
 	def post(self):
 		print(request.url)
@@ -414,6 +432,8 @@ def main():
 		for module in studentCatalog[student][-1]:
 			moduleList.append(module)
 	enrollmentFigures = (Counter(moduleList))
+
+	# Returns index.html along with dictionarys for jinja2 to display in html format.
 
 	return render_template('index.html', moduleCatalog=moduleCatalog, studentCatalog=studentCatalog, selectStudentsInModule=selectStudentsInModule, rejectedModules=rejectedModules, enrollmentFigures=enrollmentFigures)
 
