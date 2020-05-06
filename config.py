@@ -1,1 +1,2 @@
-class Config(ob)
+import os
+
