@@ -49,9 +49,9 @@ studentCatalog = dict()
 moduleCatalog = dict()
 selectStudentsInModule = dict()
 rejectedModules = []
-fetchedModuleResults = dict()
 
-domainURL = 'https://d19124355studentmgmtsystem.herokuapp.com/'
+# domainURL = 'https://d19124355studentmgmtsystem.herokuapp.com/'
+domainURL = 'http://127.0.0.1:5000/'
 
 # Initialize Firestore DB
 cred = credentials.Certificate({
@@ -74,6 +74,7 @@ db = firestore.client()
 studentCatalog_ref = db.collection('studentCatalog')
 moduleCatalog_ref = db.collection('moduleCatalog')
 
+
 # Jinja2 Initialise
 
 def getStudents():
@@ -84,6 +85,9 @@ def getModules():
 	for key in moduleCatalog_ref.stream():
 		moduleCatalog[key.id] = [key.to_dict()['title'], key.to_dict()['lecturer'], key.to_dict()['capacity']]
 
+getStudents()
+getModules()
+print(studentCatalog)
 class Student(MethodView):
 	# Get all students enrolled in a selected module. These students are temporarily added to a dictionary and returned back to javascript for it to be displayed to the user. The dictionary is destroyed once user has changed their module selection.
 	def get_student(self, value):
@@ -146,16 +150,15 @@ class Student(MethodView):
 
 	def search_student(self, value):
 		fetchedStudentResults = dict()
-		fetchCounter = 0
 		for key in studentCatalog:
 			print(key)
 			index = 0
-			if value == key:
-				fetchedStudentResults[key] = [studentCatalog[key]['name'], studentCatalog[key]['email'], studentCatalog[key]['modules']]
+			if value.upper() == key.upper():
+				fetchedStudentResults[key] = [studentCatalog[key][0], studentCatalog[key][1], studentCatalog[key][-1]]
 			else:
 				while index < len(studentCatalog[key]) - 1:
-					if value in studentCatalog[key][index]:
-						fetchedStudentResults[key] = [studentCatalog[key]['name'], studentCatalog[key]['email'], studentCatalog[key]['modules']]
+					if value.upper() in studentCatalog[key][index].upper():
+						fetchedStudentResults[key] = [studentCatalog[key][0], studentCatalog[key][1]]
 						index += 1
 					else:
 						index += 1
@@ -180,7 +183,7 @@ class Student(MethodView):
 
 	def delete_student(self, key):
 		studentCatalog_ref.document(key).delete()
-
+		getStudents()
 		return "Student Deleted"
 
 
@@ -297,23 +300,24 @@ class Module(MethodView):
 
 	# Searching a module is similar to searching a student, and support a variety of different search words.
 	def search_module(self, value):
-		fetchedModuleResults.clear()
-		fetchCounter = 0
+		fetchModulesResults = dict()
 		for key in moduleCatalog:
 			index = 0
-			if value == key:
-				fetchedModuleResults[key] = [moduleCatalog[key][0], moduleCatalog[key][1]]
+			print(key)
+			if value.upper() == key.upper():
+				print(value.upper(), key.upper())
+				fetchModulesResults[key] = [moduleCatalog[key][0], moduleCatalog[key][1], moduleCatalog[key][2]]
 			else:
-				while index < len(moduleCatalog[key]) - 3:
-					if value in moduleCatalog[key][index]:
-						fetchedModuleResults[key] = [moduleCatalog[key][0], moduleCatalog[key][1]]
+				while index < len(moduleCatalog[key]) - 1:
+					if value.upper() in moduleCatalog[key][index].upper():
+						fetchModulesResults[key] = [moduleCatalog[key][0], moduleCatalog[key][1]]
 						index += 1
 					else:
 						index += 1
 
-		print(fetchedModuleResults)
+		print(fetchModulesResults)
 
-		return fetchedModuleResults
+		return fetchModulesResults
 
 # Post Handling
 
@@ -391,7 +395,6 @@ app.add_url_rule('/delete-student', view_func=Student.as_view('delete_student'))
 def main():
 	getStudents()
 	getModules()
-
 	moduleList = []
 	for student in studentCatalog:
 		for module in studentCatalog[student][-1]:
