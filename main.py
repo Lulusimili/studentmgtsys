@@ -87,6 +87,7 @@ def getModules():
 
 getStudents()
 getModules()
+
 print(studentCatalog)
 class Student(MethodView):
 	# Get all students enrolled in a selected module. These students are temporarily added to a dictionary and returned back to javascript for it to be displayed to the user. The dictionary is destroyed once user has changed their module selection.
