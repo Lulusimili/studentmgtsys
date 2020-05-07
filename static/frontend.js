@@ -1,6 +1,6 @@
-$(document).ready( () => {
+$(document).ready(function() {
 	//Add Module
-	$('#add-module').click( () => {
+	$('#add-module').click(function() {
 		$('#addModuleForm').attr('action', '/add_module');
 		$('#moduleID').removeAttr('disabled');
 		$('#moduleID').val('');
@@ -12,10 +12,10 @@ $(document).ready( () => {
 	}); 
 
 	//Delete Module
-    $("#remove-module").click( () => {
+    $("#remove-module").click(function() {
     	$("#remove-module").attr('disabled', 'disabled');
     	$("#edit-module").attr('disabled', 'disabled');
-    	$('.list-group-item').each(() => {
+    	$('.list-group-item').each(function() {
 	    	if ($(this).hasClass('active')) {
 		     	let moduleID = $(this).data('moduleid');
 				console.log(moduleID)
@@ -26,7 +26,7 @@ $(document).ready( () => {
 					contentType: 'application/json; charset=utf-8',
 					data: JSON.stringify({'id': moduleID}),
 					success: (data) => {
-				    	$('.list-group-item').each( () => {
+				    	$('.list-group-item').each(function() {
 	    					if ($(this).hasClass('active')) { 
 	    						$(this).remove();
 	    						$('.list-group-item').each((index) => {
@@ -44,13 +44,13 @@ $(document).ready( () => {
 	});
 
     //Edit Module
-    $("#edit-module").click( () => {
+    $("#edit-module").click(function() {
 
     	$('#addModuleForm').attr('action', '/module_edit');
     	$('#moduleID').attr('readonly', 'readonly');
 		$('#modal-submit-btn').html('Edit Module');
 		$('#staticBackdropLabel').html('Edit Module');	
-    	$('.list-group-item').each( () => {
+    	$('.list-group-item').each(function() {
 	    	if ($(this).hasClass('active')) {
 		     	let editModuleID = $(this).data('moduleid');
 				console.log(editModuleID)
@@ -73,12 +73,12 @@ $(document).ready( () => {
 	});
 
     //View Modules
-	$('#viewModules').click( () => {
+	$('#viewModules').click(function() {
 		$('#student-list-container').hide();
 		$('#student-btn').hide();
 		$('#student-list-container').load(document.URL +  ' #student-list', () => {
 			$('#module-header').show()
-			$('.list-group-item').each( () => {
+			$('.list-group-item').each(function() {
 				if ($(this).hasClass('active')) {
 					$(this).trigger('click');	
 				}
@@ -87,11 +87,12 @@ $(document).ready( () => {
 	});
 
     //Fetch Selected student enrolled in current module
-	$('.list-group-item').click( () => {
+	$('.list-group-item').click(function() {
 	    $('.active').not($(this)).removeClass('active');
 		$(this).addClass("active");
 
 		let getStudentsModuleID = $(this).data('moduleid');
+		console.log(getStudentsModuleID);
 		//Send Selected Module ID to fetch students enrolled in module
 		$.ajax({
 			type: 'post',
@@ -114,7 +115,7 @@ $(document).ready( () => {
 	});
 
 	//Rejected Modules
-	$('#rejectedModules-close').click( () => {
+	$('#rejectedModules-close').click(function() {
 		$('#student-list-container').load(document.URL +  ' #student-list', () => {
 			$('#viewModules').removeClass('active');
 			$(this).addClass('active');
@@ -122,21 +123,21 @@ $(document).ready( () => {
 			$('#student-list-container').show();
 			$('#student-btn').html('Register New Student');
 
-			$('.fullStudentList').each(() => {
+			$('.fullStudentList').each(function() {
 				$(this).show();
 			});
 			
 			$('.studentEnrollmentList').hide();
 			$('.fullStudentList').css('display', 'all');
 
-			$('.student-option-btn').each(() => {
+			$('.student-option-btn').each(function() {
 				$(this).html('Edit Student');
 			});				
 		});
 	})
 
 	// View All Students in Catalog
-	$('#viewStudents').click( () => {
+	$('#viewStudents').click(function() {
 		$('#student-list-container').load(document.URL +  ' #student-list', () => {
 			$('#viewModules').removeClass('active');
 			$(this).addClass('active');
@@ -145,14 +146,14 @@ $(document).ready( () => {
 			$('#student-btn').show();
 			$('#student-btn').html('Register New Student');
 
-			$('.fullStudentList').each( () => {
+			$('.fullStudentList').each(function() {
 				$(this).show();
 			});
 
 			$('.studentEnrollmentList').hide();
 			$('.fullStudentList').css('display', 'all');
 
-			$('.student-option-btn').each( () => {
+			$('.student-option-btn').each(function() {
 				$(this).html('Edit Student');
 			});				
 		});
@@ -160,14 +161,14 @@ $(document).ready( () => {
 	});
 
 	//Register Student Form
-	$('#registerStudentForm').on('submit', (e) => {
+	$('#registerStudentForm').on('submit', function(e) {
 		action = $(this).attr('action');
 		console.log(action)
 		$.ajax({
 			type: 'post',
 			url: action,
 			data: $('#registerStudentForm').serialize(),
-			success: (data) => {
+			success: function(data) {
 
 	   			if (data['status'] == 'AlreadyExists') {
 	   				alert('Student ID Already Exists.')
@@ -176,26 +177,26 @@ $(document).ready( () => {
 	   			$('#student-modal-close').trigger('click');
 
    			 	if (data.length > 0) {
-					$('#body-container').load(document.URL +  ' .rejected-items', () => {
+					$('#body-container').load(document.URL +  ' .rejected-items', function() {
 						$('#rejectedModulesToggle').trigger('click');
 					});
 	   			};
 
-				$('#student-list-container').load(document.URL +  ' #student-list', () => {
+				$('#student-list-container').load(document.URL +  ' #student-list', function() {
 					$('#viewModules').removeClass('active');
 					$(this).addClass('active');
 					$('#module-header').hide();
 					$('#student-list-container').show();
 					$('#student-btn').html('Register New Student');
 
-					$('.fullStudentList').each( () => {
+					$('.fullStudentList').each(function() {
 						$(this).show();
 					});
 
 					$('.studentEnrollmentList').hide();
 					$('.fullStudentList').css('display', 'all');
 
-					$('.student-option-btn').each( () => {
+					$('.student-option-btn').each(function() {
 						$(this).html('Edit Student');
 					});				
 				});
@@ -207,7 +208,7 @@ $(document).ready( () => {
 	});
 
 	//Configure Register Form
-	$(document).on('click', '#student-btn', (e) => { 
+	$(document).on('click', '#student-btn', function(e) { 
 
 		$('#registerStudentForm').attr('action', '/register-student');
 		$('#delete-student').hide();
@@ -224,9 +225,9 @@ $(document).ready( () => {
 	});
 
 	//Delete Student
-	$('#delete-student').click( () => {
+	$('#delete-student').click(function() {
 		let selectedDeleteStudentID;
-		$('.fullStudentList').each( () => {
+		$('.fullStudentList').each(function() {
 			if ($(this).hasClass('activeStudentRow')) {
 				selectedDeleteStudentID = $(this).attr('data');
 				return selectedDeleteStudentID
@@ -241,7 +242,7 @@ $(document).ready( () => {
 			data: JSON.stringify({'id': selectedDeleteStudentID}),
 			success: (data) => {
 				$("#student-modal-close").trigger('click');
-				$('.fullStudentList').each( () => {
+				$('.fullStudentList').each(function() {
 					if ($(this).hasClass('activeStudentRow')) {
 						$(this).remove();
 					}	
@@ -252,17 +253,17 @@ $(document).ready( () => {
 	});
 
 	//Selected Student on Student List
-	$(document).on('click', '.studentEnrollmentList', (e) => { 
+	$(document).on('click', '.studentEnrollmentList', function(e) { 
 		
 		$('.studentEnrollmentList').not($(this)).removeClass('activeStudentRow');
 		$(this).addClass("activeStudentRow");
 		selectedStudentID = $(this).attr('data');
 
-		$(this).find("button").click(() => {
+		$(this).find("button").click(function() {
 
 			console.log(selectedStudentID);
 			let getStudentsModuleID = '';
-			$('.list-group-item').each(() => {
+			$('.list-group-item').each(function() {
 				if ($(this).hasClass('active')) {
 					getStudentsModuleID = $(this).data('moduleid');
 					return getStudentsModuleID
@@ -278,8 +279,8 @@ $(document).ready( () => {
 					url: '/remove-student-from-module',
 					contentType: 'application/json; charset=utf-8',
 					data: JSON.stringify({'moduleID': getStudentsModuleID, 'studentID': selectedStudentID}),
-					success: (data) => {
-						$('.studentEnrollmentList').each(() => {
+					success: function(data) {
+						$('.studentEnrollmentList').each(function() {
 							if ($(this).hasClass('activeStudentRow')) {
 								$(this).remove();
 							}	
@@ -299,20 +300,20 @@ $(document).ready( () => {
 	});
 
 	//Selected Student on Student List
-	$(document).on('click', '.fullStudentList', (e) => { 
+	$(document).on('click', '.fullStudentList', function(e) { 
 		
 		$('.fullStudentList').not($(this)).removeClass('activeStudentRow');
 		$(this).addClass("activeStudentRow");
 		selectedStudentID = $(this).attr('data');
 
-		$(this).find("button").attr('data-toggle', 'modal').click( () => {
+		$(this).find("button").attr('data-toggle', 'modal').click(function() {
 
 			$.ajax({
 				type: 'post',
 				url: '/select-edit-students',
 				contentType: 'application/json; charset=utf-8',
 				data: JSON.stringify({'id': selectedStudentID}),
-				success: (data) => {
+				success: function(data) {
 					$('#studentID').val(selectedStudentID);
 					$('#studentName').val(data[0]);
 					$('#studentEmail').val(data[1]);
@@ -339,10 +340,10 @@ $(document).ready( () => {
 
 
 //Search Ajax
-$(document).ready( () => {
+$(document).ready(function() {
 
 	//Listen to search input fields
-	$("#search-bar-input").keyup( () => {
+	$("#search-bar-input").keyup(function() {
 
 	    if (!this.value) {
 	    	if ($('#viewStudents').hasClass('active')){
@@ -354,7 +355,7 @@ $(document).ready( () => {
 	});
 
 
-	$('#search-bar').on('submit', (e) => {
+	$('#search-bar').on('submit', function(e) {
 		let action;
 
 		if ($('#viewStudents').hasClass('active')) {
@@ -375,9 +376,9 @@ $(document).ready( () => {
 				console.log(data);
 
 				if (action == '/search-modules' && Object.keys(data).length > 0 ) {
-					Object.keys(data).forEach((key,index) => {
+					Object.keys(data).forEach(function(key,index) {
 
-			   			$('.list-group-item-action').each( () => {
+			   			$('.list-group-item-action').each(function() {
 
 			   				if ($(this).attr('data-moduleid') == key) {
 			   					$(this).addClass('search-result');
@@ -385,7 +386,7 @@ $(document).ready( () => {
 			   			}) 
 					});
 
-		   			$('.list-group-item-action').each( () => {
+		   			$('.list-group-item-action').each(function() {
 		   				if ($(this).hasClass('search-result')) {
 		   					
 		   				} else {
@@ -393,14 +394,14 @@ $(document).ready( () => {
 		   				}
 			   		}) 					
 				} else {
-					Object.keys(data).forEach( (key,index) => {
-			   			$('.fullStudentList').each( () => {
+					Object.keys(data).forEach( function(key,index) {
+			   			$('.fullStudentList').each(function() {
 			   				if ($(this).attr('data') == key) {
 			   					$(this).addClass('search-result');
 			   				}
 			   			}) 
 					});
-		   			$('.fullStudentList').each( () => {
+		   			$('.fullStudentList').each(function() {
 		   				if ($(this).hasClass('search-result')) {
 		   					
 		   				} else {
