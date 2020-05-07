@@ -50,8 +50,8 @@ moduleCatalog = dict()
 selectStudentsInModule = dict()
 rejectedModules = []
 
-# domainURL = 'https://d19124355studentmgmtsystem.herokuapp.com/'
-domainURL = 'http://127.0.0.1:5000/'
+domainURL = 'https://d19124355studentmgmtsystem.herokuapp.com/'
+# domainURL = 'http://127.0.0.1:5000/'
 
 # Initialize Firestore DB
 cred = credentials.Certificate({
