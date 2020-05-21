@@ -53,20 +53,6 @@ rejectedModules = []
 domainURL = 'https://d19124355studentmgmtsystem.herokuapp.com/'
 # domainURL = 'http://127.0.0.1:5000/'
 
-# Initialize Firestore DB
-cred = credentials.Certificate({
-  "type": "service_account",
-  "project_id": "d19124355-studentmgmtsys-88b1b",
-  "private_key_id": "2a35e7fd1d58f702fe659b39d52577cf4481580d",
-  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDlrYmKKhZC07sA\nbkJIt++Ezn/sCARq3aUPzGofLEbBZq8J01okMghgXW8L5ZeheQUdoWnpEO02NIrc\nWf25E1F8HS56/ALzmcOSXgfXMv+umbWNpD+Af1gWWRpx/33LG/E/mMxt2xbAX0gz\ndnH8f5wYy180WFeFJmtedlQnSObBaqvK9ci/2SDokU2RdKIEeSv3LPY2C95jHt0b\nr3YWZJeG5hB8yRoavsqAUR4O2FSybCxxI8HsBnzfr3qa3teuIiFYfiR6MkNWlgPc\nU5wZldqPl9AWyrkzggZ2txSoKXmkvtUOcdao3G4CsjkP6mWIw/vIAJKpOVz/lgXt\nHs484ILLAgMBAAECggEAMsKLpzFuAg7xQUMc+x1LnjpVI0ESWNvrYvZ2bbVHXe7n\nuHAxd9Zm64U6yZJQVKt+afIGii/nfRdXqSNqY8DVPWzlnOCddmEBTBPj/7eRsnDe\nIxOtxSRfv3Cp24/vqTfftYJ7i7vj51gniNggkQFS6lfoDpWHojG/gPz91EDUXuJd\nFwiECTB+rGU18J/X9rEJDtZenaERfJLrJ6cRWcwDLJGzDh07oZd9YCBObzNqkecu\nMrKTfTsH6nH+XhonxSWeGjOD0HlS2+LBt9W8P1dlMswSdeHkd5DAiSuloE83HWuW\nO7kR0d3IOMsFpv6nMs7xm1AWZGuWDyodIOHZHyYQ4QKBgQD81GDsms2rfs6/9iSv\nfNGYFF5OP6i+ppcApz49Z89R00Ze0dWOfvONhYskXy6rt9dFYzRboP+JFnkIjUVV\n09mwHkOtOCbO6rKNO5u7cxp7UVHCxW/+JMsxe8Zj0pwBcogpUbT/6UZRmoFF7yc3\n1lq28wWxceRqH1LJ6x/oNtN9nwKBgQDojtaONGCC+Lb87LnF38xYbjw2oehoGlc5\nqTcExhoG+0v+TvedcgbI5iuYRacVaEZs2pgeZVptXJXx8gSVKm5HhLda1lm64vy+\nw++WL4CYHfEe4yD/wDeSj2d8YGPWkVOFpJIuJpn2ZXKD0ATjuGH6xUFD+ScXlzpS\nOZU9P4sTVQKBgQCj5DwsRDE8kUgOsc2YIG5xigqT6LpHVBAgsUksXwXKgg1k29r2\nsx7IR6Ap5LWJRPP8G9HN7/CV+gZdX85pU5oSi5vNRtAJY6R43wIVogixlcZNXtU5\nRrqdCiJRhS3x1j+joT6Wga4+qcxQ/DVNAdvuKl0vaKfrjwCIua0GR7wS+wKBgGVX\ncXoQqwoH9j3rrtzitLrIdubb0VokOGSBL9+dsFPgiHIu2Uq8GObNHqxBlhkHEsF2\n1JlSU4CauyDu9T5Hej0iQYCNLhb5uWgsHCjXVHN1gNCT65pnmg/8+/zASGGFfN8d\nIzKHUcqE1M1KBgdyHwhXkyRa28U0+o5AV5+UJDftAoGBAI415uBpapZmp584ZV6I\nvXa19UmcbebB7oLosGBwdPW4Ek01VeYwV9U2EvtMXZq9LJrdqZ2fowa+xQ8As3H4\nx0Z+D2hRKq+zeMeJHLwXMjZYyx2DPBusIAonLzJmIbEhIUljkT7nYCH30DdqiyGs\nhJUhG4CqZ12a4E5E8ZAr/oRb\n-----END PRIVATE KEY-----\n",
-  "client_email": "firebase-adminsdk-dw0e5@d19124355-studentmgmtsys-88b1b.iam.gserviceaccount.com",
-  "client_id": "113009878211073697270",
-  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-  "token_uri": "https://oauth2.googleapis.com/token",
-  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-dw0e5%40d19124355-studentmgmtsys-88b1b.iam.gserviceaccount.com"
-})
-
 
 default_app = initialize_app(cred)
 db = firestore.client()
